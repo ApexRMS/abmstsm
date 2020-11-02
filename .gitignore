@@ -1,0 +1,5 @@
+*.temp
+*.output
+*.backup
+*.Rhistory
+*.RData
