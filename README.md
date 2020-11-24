@@ -64,7 +64,7 @@ and ABM. It uses information from the SyncroSim environment to set the initial
 conditions for the ABM, starts NetLogo, and finally passes the ABM results back
 to SyncroSim.
 
-`ABM_STSM_BADL.R` is the _template_ for a NetLogo script that simulates the
+`ABM_STSM_BADL.nlogo` is the _template_ for a NetLogo script that simulates the
 movement and grazing of buffalo within simulated years. The R script copies and
 modifies this template based on the initial conditions provided by the STSM for
 a given iteration and timestep to generate a working NetLogo script that is

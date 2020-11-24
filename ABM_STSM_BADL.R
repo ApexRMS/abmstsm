@@ -25,8 +25,8 @@ locationsDir <- file.path(tempDir, "locations")          # Directory store buffa
 
 
 # Set template file names, load as needed
-template.model.path <- "ABM_STSM_BADL.nlogo"                  # NetLogo Script template
-template <- raster(paste0(dataDir, "/template.tif"))          # Output raster template
+template.model.path <- "ABM_STSM_BADL.nlogo"             # NetLogo Script template
+template <- raster(paste0(dataDir, "/template.tif"))     # Output raster template
 
 # Create local dirs if they do not exist
 dir.create(locationsDir)
@@ -174,6 +174,8 @@ saveDatasheet(myScenario, biomassRemovedData, name = biomassRemovedSheetName, ap
 
 # Clean and terminate NetLogo instance -----------------------------------------
 
-NLDoCommand(1, "go", nl.obj=nlInstance) #prompts NetLogo to run for 1 more tick so it can execute "New Year" procedures, otherwise the extra tick us executed at beginning of next timestep
+# Prompt NetLogo to run for 1 more tick so it can execute "New Year" procedures,
+# otherwise the extra tick us executed at beginning of next timestep
+NLDoCommand(1, "go", nl.obj=nlInstance)
 
 NLQuit(nl.obj=nlInstance)
