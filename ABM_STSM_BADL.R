@@ -1,9 +1,6 @@
 # External script to run NetLogo between every SyncroSim timestep. This is the
 # dynamic link between the STSM and ABM.
   
-# Set absolute NetLogo path, needed by RNetLogo
-nlPath <- "C:/Program Files/NetLogo 6.0/app"
-
 # Setup ------------------------------------------------------------------------
 
 # Load libraries
@@ -13,6 +10,16 @@ library(RNetLogo)
 library(tibble)
 library(readr)
 library(stringr)
+
+## Parse config ----------------------------------------------------------------
+
+config <- read_yaml("config.yaml")
+
+nlPath <- config$`netlogo-path`
+if(!dir.exists(nlPath))
+  stop("Could not find Net Logo install path! Please check `config.yaml`")
+
+## Setup necessary files and folders -------------------------------------------
 
 # Set local paths to construct filenames, etc
 workingDir <- getwd()

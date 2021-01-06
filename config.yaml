@@ -1,0 +1,5 @@
+---
+# Location of Net Logo install for RNetLogo
+netlogo-path: "C:/Program Files/NetLogo 6.0/app"
+max-years: 2
+max-iterations: 2

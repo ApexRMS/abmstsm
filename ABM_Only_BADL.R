@@ -1,8 +1,5 @@
 # External script to run NetLogo between every SyncroSim year. This is the
 # dynamic link between the STSM and ABM.
-  
-# Set absolute NetLogo path, needed by RNetLogo
-nlPath <- "C:/Program Files/NetLogo 6.0/app"
 
 # Setup ------------------------------------------------------------------------
 
@@ -13,6 +10,23 @@ library(tibble)
 library(readr)
 library(dplyr)
 library(stringr)
+library(yaml)
+
+## Parse config ----------------------------------------------------------------
+
+config <- read_yaml("config.yaml")
+
+nlPath <- config$`netlogo-path`
+if(!dir.exists(nlPath))
+  stop("Could not find Net Logo install path! Please check `config.yaml`")
+
+maxIterations <- as.integer(config$`max-iterations`)
+maxYears <- as.integer(config$`max-years`)
+
+if(is.na(maxIterations) | is.na(maxYears))
+  stop("Invalid maximum number of years or iterations in config! Please check `config.yaml`")
+
+## Setup up necessary files and folders ----------------------------------------
 
 # Set local paths to construct filenames, etc
 workingDir <- getwd()
@@ -31,10 +45,9 @@ dir.create(outputDir)
 unlink(tempDir, recursive = T)
 dir.create(tempDir, showWarnings = F)
 
-# Prepare script and outputs ---------------------------------------------------
 
-maxIterations <- 2
-maxYears <- 2
+
+# Prepare script and outputs ---------------------------------------------------
 
 # Generate tabular output filename and initialize
 outputTablePath <- file.path(outputDir, "ABM_biomass_output.csv")
