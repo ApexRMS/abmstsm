@@ -25,6 +25,7 @@ locationsDir <- file.path(tempDir, "locations")          # Directory store buffa
 
 
 # Set template file names, load as needed
+template.models.folder <- file.path(workingDir, "Templates")
 template.model.path <- "ABM_STSM_BADL.nlogo"             # NetLogo Script template
 template <- raster(paste0(dataDir, "/template.tif"))     # Output raster template
 
@@ -63,7 +64,7 @@ if(!(locationFileExists)){
 # Copy and modify the NetLogo script template to use run-specific inputs
 # This script is stored in the run-specific Temp folder to avoid conflicts
 absolute.model.path <- paste0(tempDir, "/", template.model.path)
-nlogoScript <- readLines(template.model.path, n = -1) %>%
+nlogoScript <- readLines(file.path(template.models.folder, template.model.path), n = -1) %>%
   str_replace_all("_dataDir_", dataDir) %>%
   str_replace_all("_inputPath_", inputStateRaster) %>%
   str_replace_all("locations_in.txt", locationsFile) %>%

@@ -1,14 +1,27 @@
 # Coupled STSM and ABM models
 
-This project contains files to run an example coupled state-and-transition
+This repository contains files to run an example coupled state-and-transition
 simulation model (STSM) and agent-based model (ABM) as described in Miller and
 Frid (2020). This proof-of-concept coupled model simulates bison grazing in the
 previous bison range of Badlands National Park.
 
+This repository also contains the files to run comparable simulations using
+only an STSM or only an ABM.
+
 ## Running the Models
 
-To run the model, first clone this repository and set the following three paths
-based on the organization of your computer.
+### Running just the STSM
+
+
+
+### Running just the ABM
+
+
+
+### Running the Coupled Model
+
+To run the coupled model, first clone this repository and set the following
+three paths based on the organization of your computer.
   1. At the top of the `ABM_STSM_BADL.R` script, modify the `nlPath` variable 
      to reflect the path to the NetLogo binary on your computer.
   2. In the `ABM_STSM_BADL.ssim` SyncroSim library under Scenario Properties ->
@@ -56,8 +69,8 @@ lapply(
 `ABM_STSM_BADL.ssim` is the SyncroSim library that is used to organize the
 entire coupled model. The STSM portion of this model, which includes simulating
 changes in vegetation composition over years, is defined and run within
-SyncroSim. Between timesteps, this file also calls the R script which acts as
-the dynamic link between the STSM and ABM.
+SyncroSim. Between timesteps, this file also calls the R script `ABM_STSM_BADL.R`
+which acts as the dynamic link between the STSM and ABM.
 
 `ABM_STSM_BADL.R` is the R script that acts as the dynamic link between the STSM
 and ABM. It uses information from the SyncroSim environment to set the initial

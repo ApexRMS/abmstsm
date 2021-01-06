@@ -4,3 +4,5 @@
 *.Rhistory
 *.RData
 *.ssim.*
+.Rproj.user
+ABM Only Results
