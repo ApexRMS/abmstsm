@@ -10,6 +10,7 @@ library(RNetLogo)
 library(tibble)
 library(readr)
 library(stringr)
+library(yaml)
 
 ## Parse config ----------------------------------------------------------------
 

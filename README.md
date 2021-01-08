@@ -8,48 +8,24 @@ previous bison range of Badlands National Park.
 This repository also contains the files to run comparable simulations using
 only an STSM or only an ABM.
 
-## Running the Models
+## Table of Contents
 
-### Running just the STSM
-
-
-
-### Running just the ABM
-
-
-
-### Running the Coupled Model
-
-To run the coupled model, first clone this repository and set the following
-three paths based on the organization of your computer.
-  1. At the top of the `ABM_STSM_BADL.R` script, modify the `nlPath` variable 
-     to reflect the path to the NetLogo binary on your computer.
-  2. In the `ABM_STSM_BADL.ssim` SyncroSim library under Scenario Properties ->
-     Advanced -> External Program, set the External Program to the location of
-     the RScript binary on your computer. Note that RStudio can be used in place
-     of RScript for debugging.
-  3. In the same External Program dialog as above, choose `ABM_STSM_BADL.R` as
-     the External Script. This path will depend on where you clone the
-     repository to on your computer.
-
-Optionally, you can modify the number of time steps and replicates (iterations)
-to simulate using the Scenario Properties -> Run Control dialog in SyncroSim and
-set the maximum number of jobs to run using the multiprocessing tab in the main
-toolbar.
-
-Finally, hit Run in the main toolbar in SyncroSim to run the model. The results
-of the run can be viewed using the Chart and Map user interfaces in SyncroSim or
-exported for use in other visualization or analysis pipelines.
+#### [Versions and Dependencies](#versions-and-dependencies)
+#### [Configuring the Models](#configuring-the-models)
+#### [Running the Models](#running-the-models)
+#### [Project Organization](#project-organization)
+#### [Citing](#citing)
+#### [Acknowledgements](#acknowledgements)
 
 ## Versions and Dependencies
 
 The model requires working installations of SyncroSim, NetLogo, and R. In
 SyncroSim, the `stsim` package and `stsimsf` add-on package must be installed,
 or will be installed when the SyncrSim library is loaded. In R, the
-`rsyncrosim`, `RNetLogo`, `raster`, and `tidyverse` packages must be installed.
-The models and scripts were developed using SyncroSim v2.2.21 with the ST-Sim
-(v3.2.23) and stsimsf (v3.2.15) packages; NetLogo 6.0; and R v4.0.3 with the
-RNetLogo (v1.0-4) and rsyncrosim (v1.2.4) packages.
+`rsyncrosim`, `RNetLogo`, `raster`, `tidyverse`, and `yaml` packages must be
+installed. The models and scripts were developed using SyncroSim v2.2.25 with
+the ST-Sim (v3.2.23) and stsimsf (v3.2.15) packages; NetLogo 6.0; and R v4.0.3
+with the RNetLogo (v1.0-4) and rsyncrosim (v1.2.4) packages.
 
 To install any missing R packages, run the following in R:
 
@@ -63,6 +39,70 @@ lapply(
         install.packages(x, dependencies = TRUE)
 )
 ```
+
+## Configuring the Models
+
+The `config.yaml` file is used to configure all three model scenarios in one
+place. R Studio and most modern text editors have syntax highlighting for YAML
+files, but may not be associated with these files by default. The syntax for
+YAML is fairly self-evident, but please refer to this short
+[tutorial](https://rollout.io/blog/yaml-tutorial-everything-you-need-get-started/)
+for details.
+
+Five values need to be set in the configuration file:
+
+  1. `netlogo-path` is the location of the NetLogo folder that includes the
+     NetLogo executable you would like to use.
+      - Note that the NetLogo scripts may need to be updated if using a version
+        other than NetLogo 6.0. This can be done by opening the two NetLogo
+        scripts in the `Templates/` folder with your chosen version of NetLogo.
+
+  2. `R-executable-path` is the location of the R executable you would like to
+     use to in the coupled model.
+      - R Script is suggested for non-interactive runs, but RStudio can be used
+        instead to run the script interactively. This is particularly useful for
+        debugging the coupled model.
+      - Note that the default configuration assumes that R v4.0.3 is installed.
+        Be sure to update this value if that is not the case.
+
+  3. `max-years` is the total number of years to simulate.
+
+  4. `max-iterations` is the total number of realizations to simulate.
+
+  5. `max-jobs` is the maximum number of jobs to allow SyncroSim to run in
+      parallel.
+
+Once the configuration values have been set, run the `config.R` script to apply
+the configuration to all three models. If you choose to use RStudio to do this,
+first open the `ABM_STSM_BADL.Rproj` R project file to ensure RStudio is using
+the correct working directory.
+
+## Running the Models
+
+### Running just the STSM
+
+After configuration, the STSM Only scenario can be run by opening SyncroSim and
+navigating to the "[1115] STSM Only" scenario. Once the scenario is selected, 
+press the `Run Scenario` button in the main toolbar to begin the simulation. The
+results of the run can be viewed using the Chart and Map user interfaces in
+SyncroSim or exported for use in other visualization or analysis pipelines.
+
+### Running just the ABM
+
+After configuration, the ABM Only scenario can be run by running the
+`ABM_Only_BADL.R` script. If you choose to use RStudio to do this, first open
+the `ABM_STSM_BADL.Rproj` R project file to ensure RStudio is using the correct
+working directory. The results of the run will be stored in the `ABM Only Results/`
+folder that is created by this script.
+
+### Running the Coupled Model
+
+After configuration, the STSM Only scenario can be run by opening SyncroSim and
+navigating to the "[1110] Coupled STSM and ABM" scenario. Once the scenario is
+selected, press the `Run Scenario` button in the main toolbar to begin the
+simulation. The results of the run can be viewed using the Chart and Map user
+interfaces in SyncroSim or exported for use in other visualization or analysis
+pipelines.
 
 ## Project Organization
 

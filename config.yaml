@@ -1,5 +1,13 @@
 ---
 # Location of Net Logo install for RNetLogo
 netlogo-path: "C:/Program Files/NetLogo 6.0/app"
-max-years: 2
+
+# R executable path
+# - Used by SyncroSim in the coupled model
+# - Rstudio can be used in place of RScript for debugging
+R-executable-path: "C:/Program Files/R/R-4.0.3/bin/Rscript.exe"
+
+# Run controls
+max-years: 5
 max-iterations: 2
+max-jobs: 8
