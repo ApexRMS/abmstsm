@@ -10,12 +10,12 @@ only an STSM or only an ABM.
 
 ## Table of Contents
 
-#### [Versions and Dependencies](#versions-and-dependencies)
-#### [Configuring the Models](#configuring-the-models)
-#### [Running the Models](#running-the-models)
-#### [Project Organization](#project-organization)
-#### [Citing](#citing)
-#### [Acknowledgements](#acknowledgements)
+#### [Versions and Dependencies](#versions-and-dependencies-1)
+#### [Configuring the Models](#configuring-the-models-1)
+#### [Running the Models](#running-the-models-1)
+#### [Project Organization](#project-organization-1)
+#### [Citing](#citing-1)
+#### [Acknowledgements](#acknowledgements-1)
 
 ## Versions and Dependencies
 
