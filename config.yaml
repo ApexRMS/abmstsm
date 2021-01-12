@@ -8,6 +8,6 @@ netlogo-path: "C:/Program Files/NetLogo 6.0/app"
 R-executable-path: "C:/Program Files/R/R-4.0.3/bin/Rscript.exe"
 
 # Run controls
-max-years: 5
-max-iterations: 2
+max-years: 30
+max-iterations: 40
 max-jobs: 8
