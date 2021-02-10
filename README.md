@@ -133,9 +133,9 @@ The `Data` folder contains all necessary input data for the coupled model.
 If you use or refer to these models, data, scripts, or techniques, we ask that
 you cite:
 
-Miller, B. W., & Frid, L. (2020). A New Approach for Representing
+Miller, B. W., & Frid, L. (In Review). A New Approach for Representing
 Agent-Environment Feedbacks: Coupled Agent-Based and State-And-Transition
-Simulation Models. Landscape Ecology. In Review.
+Simulation Models.
 
 ## Acknowledgements
 
