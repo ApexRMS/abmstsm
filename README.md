@@ -141,7 +141,7 @@ Simulation Models.
 
 We are grateful to Josie Hughes and Alex Embrey for helping develop the coupled
 model script, to Tyler Beeton for sharing an ABM that served as the seed for
-the one described here, and to Shreeram Senthivasn for helping update and tidy
+the one described here, and to Shreeram Senthivasan for helping update and tidy
 the project for this repository. This research was funded by the North Central
 Climate Adaptation Science Center, U.S. Geological Survey. Any use of trade,
 firm, or product names is for descriptive purposes only and does not imply
