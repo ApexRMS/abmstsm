@@ -2,7 +2,7 @@
 
 This repository contains files to run an example coupled state-and-transition
 simulation model (STSM) and agent-based model (ABM) as described in Miller and
-Frid (2020). This proof-of-concept coupled model simulates bison grazing in the
+Frid (in review). This proof-of-concept coupled model simulates bison grazing in the
 previous bison range of Badlands National Park.
 
 This repository also contains the files to run comparable simulations using
@@ -133,15 +133,15 @@ The `Data` folder contains all necessary input data for the coupled model.
 If you use or refer to these models, data, scripts, or techniques, we ask that
 you cite:
 
-Miller, B. W., & Frid, L. (2020). A New Approach for Representing
+Miller, B. W., & Frid, L. (In Review). A New Approach for Representing
 Agent-Environment Feedbacks: Coupled Agent-Based and State-And-Transition
-Simulation Models. Landscape Ecology. In Review.
+Simulation Models.
 
 ## Acknowledgements
 
 We are grateful to Josie Hughes and Alex Embrey for helping develop the coupled
 model script, to Tyler Beeton for sharing an ABM that served as the seed for
-the one described here, and to Shreeram Senthivasn for helping update and tidy
+the one described here, and to Shreeram Senthivasan for helping update and tidy
 the project for this repository. This research was funded by the North Central
 Climate Adaptation Science Center, U.S. Geological Survey. Any use of trade,
 firm, or product names is for descriptive purposes only and does not imply
