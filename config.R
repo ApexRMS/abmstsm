@@ -37,7 +37,7 @@ if(!config$`max-jobs` %>% is.integer | config$`max-jobs` < 1)
 # Apply the Configuration ------------------------------------------------------
 
 # Load the relevant SyncroSim library, project, etc
-mylibrary <- ssimLibrary("ABM_STSM_BADL.ssim")
+mylibrary <- ssimLibrary("ABM_STSM_BADL.ssim", forceUpdate = T)
 myproject <- project(mylibrary, "ABM_STSM_BADL")
 coupledModel <- scenario(myproject, "Coupled STSM and ABM")
 runControls <- scenario(myproject, "Run Controls")
