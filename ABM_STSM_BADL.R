@@ -184,16 +184,12 @@ biomassRemovedData <- data.frame(
   stringsAsFactors=F)
 saveDatasheet(myScenario, biomassRemovedData, name = biomassRemovedSheetName, append=T)
 
-# Get daily resolution biomass and biomass removed
-dailyBiomass = as.numeric(NLReport("sum [biomass] of patches with [stateclass >= 1]", nl.obj=nlInstance))
-dailyBiomassRemoved = as.numeric(NLReport("sum [biomass_removed] of patches with [stateclass >= 1]", nl.obj=nlInstance))
-
 # Collect tabular data
 outputTable <- data.frame(
   Iteration = iteration,
   Timestep = timestep,
-  Name = c("Biomass", "Biomass Removed", "Daily Biomass", "Daily Biomass Removed"),
-  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T), dailyBiomass, dailyBiomassRemoved),
+  Name = c("Biomass", "Biomass Removed"),
+  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T)),
   stringsAsFactors = F)
 saveDatasheet(myScenario, outputTable, "corestime_ExternalProgramVariable", append = T)
 

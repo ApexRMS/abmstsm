@@ -119,10 +119,6 @@ biomassRaster <- raster(biomassFileName)
 # Calculate proportion of biomass removed and save to outputs
 biomassRemovedProportion <- biomassRemovedRaster/(biomassRaster + biomassRemovedRaster)
 writeRaster(biomassRemovedProportion, outputBioRemRaster, format="GTiff", overwrite=TRUE)
-  
-# Get daily resolution biomass and biomass removed
-dailyBiomass = as.numeric(NLReport("sum [biomass] of patches with [stateclass >= 1]", nl.obj=nlInstance))
-dailyBiomassRemoved = as.numeric(NLReport("sum [biomass_removed] of patches with [stateclass >= 1]", nl.obj=nlInstance))
 
 # Export results to SyncroSim --------------------------------------------------
 
@@ -130,8 +126,8 @@ dailyBiomassRemoved = as.numeric(NLReport("sum [biomass_removed] of patches with
 outputTable <- data.frame(
   Iteration = iteration,
   Timestep = timestep,
-  Name = c("Biomass", "Biomass Removed", "Daily Biomass", "Daily Biomass Removed"),
-  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T), dailyBiomass, dailyBiomassRemoved),
+  Name = c("Biomass", "Biomass Removed"),
+  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T)),
   stringsAsFactors = F)
 saveDatasheet(myScenario, outputTable, "corestime_ExternalProgramVariable", append = T)
 
