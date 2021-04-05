@@ -40,19 +40,39 @@ if(!config$`max-jobs` %>% is.integer | config$`max-jobs` < 1)
 mylibrary <- ssimLibrary("ABM_STSM_BADL.ssim", forceUpdate = T)
 myproject <- project(mylibrary, "ABM_STSM_BADL")
 coupledModel <- scenario(myproject, "Coupled STSM and ABM")
+abmOnly <- scenario(myproject, "ABM Only")
+stsmOnly <- scenario(myproject, "STSM Only")
 runControls <- scenario(myproject, "Run Controls")
 
 ## External Program ------------------------------------------------------------
 
 # Update the External Program datasheet
-externalProgramSheet <-
+coupledExternalProgramSheet <-
   data.frame(
     ExecutableName = config$`R-executable-path`,
     ScriptName = file.path(getwd(), "ABM_STSM_BADL.R"),
     CallBeforeTimesteps = paste0("0-", config$`max-years`)
   )
 
-saveDatasheet(coupledModel, externalProgramSheet, "corestime_External")
+abmExternalProgramSheet <-
+  data.frame(
+    ExecutableName = config$`R-executable-path`,
+    ScriptName = file.path(getwd(), "ABM_Only_BADL.R"),
+    CallBeforeTimesteps = paste0("0-", config$`max-years`)
+  )
+
+# The STSM model calls an external program after timesteps to collect the
+# stock and flow output in a comparable way to the other scenarios
+stsmExternalProgramSheet <-
+  data.frame(
+    ExecutableName = config$`R-executable-path`,
+    ScriptName = file.path(getwd(), "STSM_Only_BADL.R"),
+    CallBeforeTimesteps = paste0("0-", config$`max-years`)
+  )
+
+saveDatasheet(coupledModel, coupledExternalProgramSheet, "corestime_External")
+saveDatasheet(abmOnly, abmExternalProgramSheet, "corestime_External")
+saveDatasheet(stsmOnly, stsmExternalProgramSheet, "corestime_External")
 
 ## Run Controls ----------------------------------------------------------------
 
