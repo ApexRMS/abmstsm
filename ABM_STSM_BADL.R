@@ -9,28 +9,23 @@ library(raster)
 library(RNetLogo)
 library(tibble)
 library(readr)
+library(dplyr)
 library(stringr)
 library(yaml)
-
-## Parse config ----------------------------------------------------------------
-
-config <- read_yaml("config.yaml")
-
-nlPath <- config$`netlogo-path`
-if(!dir.exists(nlPath))
-  stop("Could not find Net Logo install path! Please check `config.yaml`")
 
 ## Setup necessary files and folders -------------------------------------------
 
 # Set local paths to construct filenames, etc
-workingDir <- getwd()
+workingDir <- dirname(ssimEnvironment()$LibraryFilePath)
+# If running in a parallel folder, move up to the parent directory
+if(str_detect(workingDir, ".ssim.temp"))
+  workingDir <- str_replace(workingDir, "/[\\n\\w\\d]+\\.ssim\\.temp.*", "")
 dataDir <- file.path(workingDir, "Data")                 # Directory with files needed by NetLogo model
 tempDir <- ssimEnvironment()$TempDirectory %>%           # Run-specific temp folder to avoid file collisions during parallel processing
   str_replace_all("\\\\", "/")                           # R can handle forward slashes in paths, even on windows machines
 transferDir <- ssimEnvironment()$TransferDirectory %>%   # Run-specific data transfer folder
   str_replace_all("\\\\", "/")                           # R can handle forward slashes in paths, even on windows machines
 locationsDir <- file.path(tempDir, "locations")          # Directory store buffalo locations                         
-
 
 # Set template file names, load as needed
 template.models.folder <- file.path(workingDir, "Templates")
@@ -41,11 +36,19 @@ template <- raster(paste0(dataDir, "/template.tif"))     # Output raster templat
 dir.create(locationsDir)
 
 # Setup SyncroSim connection, load info about this run
-mySession <- session()
+mySession <- rsyncrosim::session()
 myLibrary <- ssimLibrary()
 myScenario <- scenario()
 timestep <- ssimEnvironment()$BeforeTimestep
 iteration <- ssimEnvironment()$BeforeIteration
+
+## Parse config ----------------------------------------------------------------
+config <- read_yaml(str_c(workingDir, "/config.yaml"))
+
+nlPath <- config$`netlogo-path`
+if(!dir.exists(nlPath))
+  stop("Could not find Net Logo install path! Please check `config.yaml`")
+
 
 # Generate Run-specific Scripts and Inputs -------------------------------------
 
@@ -180,6 +183,19 @@ biomassRemovedData <- data.frame(
   MultiplierFileName = outputBioRemRaster,
   stringsAsFactors=F)
 saveDatasheet(myScenario, biomassRemovedData, name = biomassRemovedSheetName, append=T)
+
+# Get daily resolution biomass and biomass removed
+dailyBiomass = as.numeric(NLReport("sum [biomass] of patches with [stateclass >= 1]", nl.obj=nlInstance))
+dailyBiomassRemoved = as.numeric(NLReport("sum [biomass_removed] of patches with [stateclass >= 1]", nl.obj=nlInstance))
+
+# Collect tabular data
+outputTable <- data.frame(
+  Iteration = iteration,
+  Timestep = timestep,
+  Name = c("Biomass", "Biomass Removed", "Daily Biomass", "Daily Biomass Removed"),
+  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T), dailyBiomass, dailyBiomassRemoved),
+  stringsAsFactors = F)
+saveDatasheet(myScenario, outputTable, "corestime_ExternalProgramVariable", append = T)
 
 # Clean and terminate NetLogo instance -----------------------------------------
 

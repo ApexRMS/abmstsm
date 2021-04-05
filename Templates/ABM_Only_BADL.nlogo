@@ -143,7 +143,7 @@ create-springs spring-cnt [
   set-default-shape bison "cow"
 
   create-bison bison-num [
-    file-open "_dataDir_/locations_in.txt"
+    file-open "locations_in.txt"
     setxy file-read file-read
     set color brown
     set size 6.5
@@ -187,6 +187,14 @@ to go                                          ; ticks represent a day, and are 
    ]
 
   tick
+
+  if ticks = 365 [
+    file-open "locationsNew.txt"
+    ask bison[
+     file-write xcor file-write ycor
+     ]
+    file-close
+  ]
 
   if ticks = 366 [
   New-Year
