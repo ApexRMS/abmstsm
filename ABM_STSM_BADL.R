@@ -30,7 +30,7 @@ locationsDir <- file.path(tempDir, "locations")          # Directory store buffa
 # Set template file names, load as needed
 template.models.folder <- file.path(workingDir, "Templates")
 template.model.path <- "ABM_STSM_BADL.nlogo"             # NetLogo Script template
-template <- raster(paste0(dataDir, "/template.tif"))     # Output raster template
+template.output <- raster(paste0(dataDir, "/template.tif"))     # Output raster template
 
 # Create local dirs if they do not exist
 dir.create(locationsDir)
@@ -141,8 +141,8 @@ biomassRemoved <- NLGetPatches(c("pxcor","pycor","biomass_removed"), nl.obj=nlIn
 coordinates(biomassRemoved) <- ~ pxcor + pycor
 gridded(biomassRemoved) <- TRUE
 biomassRemovedRaster <- raster(biomassRemoved) %>%
-  setExtent(template, keepres=FALSE, snap=TRUE) %>%
-  mask(template)
+  setExtent(template.output, keepres=FALSE, snap=TRUE) %>%
+  mask(template.output)
 projection(biomassRemovedRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassRemovedFileName <- paste0(tempDir, "/biomassRemoved.tif")
 writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T)
@@ -152,8 +152,8 @@ biomass <- NLGetPatches(c("pxcor","pycor","biomass"), nl.obj=nlInstance)
 coordinates(biomass) <- ~ pxcor + pycor
 gridded(biomass) <- TRUE
 biomassRaster <- raster(biomass) %>%
-  setExtent(template, keepres=FALSE, snap=TRUE) %>%
-  mask(template)
+  setExtent(template.output, keepres=FALSE, snap=TRUE) %>%
+  mask(template.output)
 projection(biomassRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassFileName <- paste0(tempDir, "/biomass.tif")
 writeRaster(biomassRaster, biomassFileName, overwrite=T)
