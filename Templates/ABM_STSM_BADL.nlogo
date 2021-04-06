@@ -457,7 +457,7 @@ bison-num
 bison-num
 0
 2000
-520.0
+_numBison_
 1
 1
 NIL

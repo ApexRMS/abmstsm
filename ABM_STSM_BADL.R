@@ -49,14 +49,19 @@ nlPath <- config$`netlogo-path`
 if(!dir.exists(nlPath))
   stop("Could not find Net Logo install path! Please check `config.yaml`")
 
-
 # Generate Run-specific Scripts and Inputs -------------------------------------
 
 # Generate raster file names to be placed in the run-specific Transfer folder
 inputStateRaster <- file.path(tempDir, "ABM_input.asc")
-outputBioRemRaster <- file.path(tempDir, str_c("ABM_biomassremoved_output", timestep, ".tif"))
-outputGrazeHeavyRaster <- file.path(tempDir, str_c("ABM_grazeheavy_output", timestep, ".tif"))
-outputGrazeNormRaster <- file.path(tempDir, str_c("ABM_grazenorm_output", timestep, ".tif"))
+outputBioRemRaster <- file.path(tempDir, str_c("ABM_biomassremoved_output.it", iteration, ".ts.", timestep, ".tif"))
+outputGrazeHeavyRaster <- file.path(tempDir, str_c("ABM_grazeheavy_output.it", iteration, ".ts.", timestep, ".tif"))
+outputGrazeNormRaster <- file.path(tempDir, str_c("ABM_grazenorm_output.it", iteration, ".ts.", timestep, ".tif"))
+  
+# Get the number of bison to generate
+numBison <-datasheet(myScenario, "corestime_ExternalProgramVariable") %>%
+  filter(Name == "Bison Count") %>%
+  pull(Value) %>%
+  `[`(1)
 
 # Set buffalo location file names for current and following run The current
 # location was produced in the previous run, except in the case of the first
@@ -64,12 +69,35 @@ outputGrazeNormRaster <- file.path(tempDir, str_c("ABM_grazenorm_output", timest
 locationsFile <- paste0(locationsDir, "/", timestep, ".txt")
 locationsFileNext <- paste0(locationsDir, "/", timestep+1, ".txt")
 locationFileExists <- file.exists(locationsFile)
-if(!(locationFileExists)){
+if(timestep == 1){
   print("No location file. Using start timestep locations.")
-  file.copy(
-    paste0(dataDir, "/locations_in.txt"), 
-    locationsFile, 
-    overwrite = FALSE)
+  
+  # Read in the location file and parse locations
+  bisonLocationsRaw <- read_file(paste0(dataDir, "/locations_in.txt")) %>%
+    str_split(" ") %>%
+    unlist %>%
+    `[`(-1)
+  
+  # Determine if there are more bison than locations
+  resampleLocations <- numBison > (length(bisonLocationsRaw) / 2)
+  
+  # Pair and sample bison locations as needed
+  str_c(
+    bisonLocationsRaw[seq(1, length(bisonLocationsRaw), 2)],
+    " ",
+    bisonLocationsRaw[seq(2, length(bisonLocationsRaw), 2)]) %>%
+    sample(numBison, replace = resampleLocations) %>%
+    str_c(collapse = " ")
+  
+  # Combine pairs of X and Y, sample based on the number of bison, and write to file
+  bisonLocationsRaw %>%
+    {str_c(
+      .[seq(1, length(.), 2)],
+      " ",
+      .[seq(2, length(.), 2)])} %>%
+    sample(numBison, replace = resampleLocations) %>%
+    str_c(collapse = " ") %>%
+    write_file(locationsFile)
 }
 
 # Copy and modify the NetLogo script template to use run-specific inputs
@@ -78,6 +106,7 @@ absolute.model.path <- paste0(tempDir, "/", template.model.path)
 nlogoScript <- readLines(file.path(template.models.folder, template.model.path), n = -1) %>%
   str_replace_all("_dataDir_", dataDir) %>%
   str_replace_all("_inputPath_", inputStateRaster) %>%
+  str_replace_all("_numBison_", as.character(numBison)) %>%
   str_replace_all("locations_in.txt", locationsFile) %>%
   str_replace_all("locationsNew.txt", locationsFileNext)
 writeLines(nlogoScript, absolute.model.path)
