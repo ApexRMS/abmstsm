@@ -67,7 +67,7 @@ stsmExternalProgramSheet <-
   data.frame(
     ExecutableName = config$`R-executable-path`,
     ScriptName = file.path(getwd(), "STSM_Only_BADL.R"),
-    CallBeforeTimesteps = paste0("0-", config$`max-years`)
+    CallAfterTimesteps = paste0("0-", config$`max-years`)
   )
 
 saveDatasheet(coupledModel, coupledExternalProgramSheet, "corestime_External")
