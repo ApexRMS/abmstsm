@@ -55,6 +55,8 @@ if(!dir.exists(nlPath))
 # Generate raster file names to be placed in the run-specific Transfer folder
 inputStateRaster <- file.path(tempDir, "ABM_input.asc")
 biomassRemovedProportionFilename <- file.path(tempDir, str_c("ABM_biomassremoved_output.it", iteration, ".ts.", timestep, ".tif"))
+outputGrazeHeavyRaster <- file.path(tempDir, str_c("ABM_grazeheavy_output.it", iteration, ".ts.", timestep, ".tif"))
+outputGrazeNormRaster <- file.path(tempDir, str_c("ABM_grazenorm_output.it", iteration, ".ts.", timestep, ".tif"))
   
 # Get the number of bison to generate
 numBison <-datasheet(myScenario, "corestime_ExternalProgramVariable") %>%
@@ -112,6 +114,15 @@ nlogoScript <- readLines(file.path(template.models.folder, template.model.path),
   str_replace_all("locationsNew.txt", locationsFileNext)
 writeLines(nlogoScript, absolute.model.path)
 
+# Load relevant raster from SyncroSim
+
+spatialNPP <- datasheetRaster(
+  myScenario, 
+  datasheet = "OutputSpatialStateAttribute", 
+  iteration = iteration, 
+  timestep = (timestep-1))[[1]]
+projection(spatialNPP) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
+
 # Run NetLogo ------------------------------------------------------------------
 nlInstance <- "nlheadless1"
 NLStart(nlPath, gui = F, nl.obj = nlInstance)
@@ -147,11 +158,45 @@ writeRaster(biomassRaster, biomassFileName, overwrite=T, NAflag = -9999)
 biomassRemovedRaster <- raster(biomassRemovedFileName)
 biomassRaster <- raster(biomassFileName)
 
+# Calculate binary maps of heavy and normal grazing based on proportion of NPP removed. Save to outputs
+propNppRemoved <- biomassRemovedRaster/spatialNPP
+grazeHeavy <- propNppRemoved
+grazeHeavy[propNppRemoved < .75]<- 0
+grazeHeavy[propNppRemoved >= .75]<- 1
+grazeNormal <- propNppRemoved
+grazeNormal[propNppRemoved >= 0.25 & propNppRemoved < .75]<- 1
+grazeNormal[propNppRemoved < 0.25 | propNppRemoved >= .75]<- 0
+writeRaster(grazeHeavy, outputGrazeHeavyRaster, format="GTiff", overwrite=TRUE, NAflag = -9999)
+writeRaster(grazeNormal, outputGrazeNormRaster, format="GTiff", overwrite=TRUE, NAflag = -9999)
+
 # Calculate proportion of biomass removed and save to outputs
 biomassRemovedProportion <- biomassRemovedRaster/(biomassRaster + biomassRemovedRaster)
 biomassRemovedProportion <- writeRaster(biomassRemovedProportion, biomassRemovedProportionFilename, format="GTiff", overwrite=TRUE, NAflag = -9999)
 
 # Export results to SyncroSim --------------------------------------------------
+
+# Save grazing maps as a Transition Spatial Multiplier
+
+grazingSheetName <- "stsim_TransitionSpatialMultiplier"
+
+grazingDataHeavy <- data.frame(
+  Iteration=iteration,
+  Timestep=timestep,
+  TransitionGroupID="Grazing - Heavy, Season Long",
+  TransitionMultiplierTypeID="Temporal", #optional field
+  MultiplierFileName = outputGrazeHeavyRaster,
+  stringsAsFactors=F)
+
+grazingDataNormal <- data.frame(
+  Iteration=iteration,
+  Timestep=timestep,
+  TransitionGroupID="Grazing - Normal, Season Long",
+  TransitionMultiplierTypeID="Temporal", #optional field
+  MultiplierFileName = outputGrazeNormRaster,
+  stringsAsFactors=F)
+grazingData <- rbind(grazingDataHeavy, grazingDataNormal)
+
+saveDatasheet(myScenario, grazingData, name = grazingSheetName, append=T)
 
 # Save maps of proportion of biomass removed
 biomassRemovedSheetName <- "stsimsf_FlowSpatialMultiplier"
