@@ -53,7 +53,7 @@ if(!dir.exists(nlPath))
 
 # Generate raster file names to be placed in the run-specific Transfer folder
 inputStateRaster <- file.path(tempDir, "ABM_input.asc")
-outputBioRemRaster <- file.path(tempDir, str_c("ABM_biomassremoved_output.it", iteration, ".ts.", timestep, ".tif"))
+biomassRemovedProportionFilename <- file.path(tempDir, str_c("ABM_biomassremoved_output.it", iteration, ".ts.", timestep, ".tif"))
 outputGrazeHeavyRaster <- file.path(tempDir, str_c("ABM_grazeheavy_output.it", iteration, ".ts.", timestep, ".tif"))
 outputGrazeNormRaster <- file.path(tempDir, str_c("ABM_grazenorm_output.it", iteration, ".ts.", timestep, ".tif"))
   
@@ -62,6 +62,9 @@ numBison <-datasheet(myScenario, "corestime_ExternalProgramVariable") %>%
   filter(Name == "Bison Count") %>%
   pull(Value) %>%
   `[`(1)
+
+if(is.na(numBison))
+  stop("Can't find the variable numBison")
 
 # Set buffalo location file names for current and following run The current
 # location was produced in the previous run, except in the case of the first
@@ -145,7 +148,7 @@ biomassRemovedRaster <- raster(biomassRemoved) %>%
   mask(template.output)
 projection(biomassRemovedRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassRemovedFileName <- paste0(tempDir, "/biomassRemoved.tif")
-writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T)
+writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T, NAflag = -9999)
 
 # Save map of biomass as a raster
 biomass <- NLGetPatches(c("pxcor","pycor","biomass"), nl.obj=nlInstance)
@@ -156,7 +159,7 @@ biomassRaster <- raster(biomass) %>%
   mask(template.output)
 projection(biomassRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassFileName <- paste0(tempDir, "/biomass.tif")
-writeRaster(biomassRaster, biomassFileName, overwrite=T)
+writeRaster(biomassRaster, biomassFileName, overwrite=T, NAflag = -9999)
 
 # Reload rasters so N/A values are removed (avoids errors in raster math)
 biomassRemovedRaster <- raster(biomassRemovedFileName)
@@ -164,7 +167,7 @@ biomassRaster <- raster(biomassFileName)
 
 # Calculate proportion of biomass removed and save to outputs
 biomassRemovedProportion <- biomassRemovedRaster/(biomassRaster + biomassRemovedRaster)
-writeRaster(biomassRemovedProportion, outputBioRemRaster, format="GTiff", overwrite=TRUE)
+biomassRemovedProportion <- writeRaster(biomassRemovedProportion, biomassRemovedProportionFilename, format="GTiff", overwrite=TRUE, NAflag = -9999)
 
 # Calculate binary maps of heavy and normal grazing based on proportion of NPP removed. Save to outputs
 propNppRemoved <- biomassRemovedRaster/spatialNPP
@@ -174,8 +177,8 @@ grazeHeavy[propNppRemoved >= .75]<- 1
 grazeNormal <- propNppRemoved
 grazeNormal[propNppRemoved >= 0.25 & propNppRemoved < .75]<- 1
 grazeNormal[propNppRemoved < 0.25 | propNppRemoved >= .75]<- 0
-writeRaster(grazeHeavy, outputGrazeHeavyRaster, format="GTiff", overwrite=TRUE)
-writeRaster(grazeNormal, outputGrazeNormRaster, format="GTiff", overwrite=TRUE)
+writeRaster(grazeHeavy, outputGrazeHeavyRaster, format="GTiff", overwrite=TRUE, NAflag = -9999)
+writeRaster(grazeNormal, outputGrazeNormRaster, format="GTiff", overwrite=TRUE, NAflag = -9999)
 
 # Export results to SyncroSim --------------------------------------------------
 
@@ -209,7 +212,7 @@ biomassRemovedData <- data.frame(
   Iteration=iteration,
   Timestep=timestep,
   FlowGroupID="Grazing Biomass Removal",
-  MultiplierFileName = outputBioRemRaster,
+  MultiplierFileName = biomassRemovedProportionFilename,
   stringsAsFactors=F)
 saveDatasheet(myScenario, biomassRemovedData, name = biomassRemovedSheetName, append=T)
 
