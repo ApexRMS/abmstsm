@@ -220,8 +220,8 @@ saveDatasheet(myScenario, biomassRemovedData, name = biomassRemovedSheetName, ap
 outputTable <- data.frame(
   Iteration = iteration,
   Timestep = timestep,
-  Name = c("Biomass", "Biomass Removed"),
-  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T)),
+  Name = c("Biomass", "Biomass Removed", "Bison Count"),
+  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T), numBison),
   stringsAsFactors = F)
 saveDatasheet(myScenario, outputTable, "corestime_ExternalProgramVariable", append = T)
 
