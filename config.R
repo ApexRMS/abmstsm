@@ -39,9 +39,9 @@ if(!config$`max-jobs` %>% is.integer | config$`max-jobs` < 1)
 # Load the relevant SyncroSim library, project, etc
 mylibrary <- ssimLibrary("ABM_STSM_BADL.ssim", forceUpdate = T)
 myproject <- project(mylibrary, "ABM_STSM_BADL")
-coupledModel <- scenario(myproject, "Coupled STSM and ABM")
-abmOnly <- scenario(myproject, "ABM Only")
-stsmOnly <- scenario(myproject, "STSM Only")
+coupledModelExternal <- scenario(myproject, "External Program - Coupled Model")
+abmOnlyExternal <- scenario(myproject, "External Program - ABM Only")
+stsmOnlyExternal <- scenario(myproject, "External Program - STSM Only")
 runControls <- scenario(myproject, "Run Controls")
 
 ## External Program ------------------------------------------------------------
@@ -70,9 +70,9 @@ stsmExternalProgramSheet <-
     CallAfterTimesteps = paste0("0-", config$`max-years`)
   )
 
-saveDatasheet(coupledModel, coupledExternalProgramSheet, "corestime_External")
-saveDatasheet(abmOnly, abmExternalProgramSheet, "corestime_External")
-saveDatasheet(stsmOnly, stsmExternalProgramSheet, "corestime_External")
+saveDatasheet(coupledModelExternal, coupledExternalProgramSheet, "corestime_External")
+saveDatasheet(abmOnlyExternal, abmExternalProgramSheet, "corestime_External")
+saveDatasheet(stsmOnlyExternal, stsmExternalProgramSheet, "corestime_External")
 
 ## Run Controls ----------------------------------------------------------------
 
@@ -95,7 +95,7 @@ multiprocessingSheet <-
   data.frame(
     EnableMultiprocessing = TRUE,
     MaximumJobs = config$`max-jobs`,
-    EnableMultiScenario = TRUE
+    EnableMultiScenario = FALSE
   )
 
 saveDatasheet(mylibrary, multiprocessingSheet, "core_Multiprocessing")
