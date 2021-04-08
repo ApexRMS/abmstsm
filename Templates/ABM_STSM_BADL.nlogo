@@ -483,7 +483,7 @@ Maximum-thirst
 Maximum-thirst
 0
 6
-5.0
+_thirstThreshold_
 0.1
 1
 NIL
