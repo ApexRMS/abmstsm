@@ -18,22 +18,30 @@ myScenario <- scenario()
 timestep <- ssimEnvironment()$AfterTimestep
 iteration <- ssimEnvironment()$AfterIteration
 
+# Find the area of the landscape in acres
+hectaresToAcres <- 2.47105
+area <- datasheetRaster(myScenario, "stsim_InitialConditionsSpatial") %>%
+  freq(useNA = "no") %>%
+  sum %>%
+  `*`(hectaresToAcres)
+
 # Extract relevant output ------------------------------------------------------
-datasheet(myScenario, summary = T)
 biomass <- datasheet(myScenario, "stsimsf_OutputStock") %>%
   filter(
     Iteration == iteration,
     Timestep == timestep,
     str_detect(StockGroupID, "Total Biomass")) %>%
   pull(Amount) %>%
-  sum
+  sum %>%
+  `/`(area)
 biomassRemoved <- datasheet(myScenario, "stsimsf_OutputFlow") %>%
   filter(
     Iteration == iteration,
     Timestep == timestep,
     str_detect(FlowGroupID, "Grazing Biomass Removal")) %>%
   pull(Amount) %>%
-  sum
+  sum %>%
+  `/`(area)
 
 # Save results to SyncroSim ----------------------------------------------------
   

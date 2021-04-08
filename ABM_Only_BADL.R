@@ -141,7 +141,7 @@ biomassRemovedRaster <- raster(biomassRemoved) %>%
   mask(template.output)
 projection(biomassRemovedRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassRemovedFileName <- paste0(tempDir, "/biomassRemoved.tif")
-writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T, NAflag = -9999)
+biomassRemovedRaster <- writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T, NAflag = -9999)
 
 # Save map of biomass as a raster
 biomass <- NLGetPatches(c("pxcor","pycor","biomass"), nl.obj=nlInstance)
@@ -152,11 +152,16 @@ biomassRaster <- raster(biomass) %>%
   mask(template.output)
 projection(biomassRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassFileName <- paste0(tempDir, "/biomass.tif")
-writeRaster(biomassRaster, biomassFileName, overwrite=T, NAflag = -9999)
+values(biomassRaster)[values(biomassRaster) < 0] <- 0
+biomassRaster <- writeRaster(biomassRaster, biomassFileName, overwrite=T, NAflag = -9999)
 
 # Reload rasters so N/A values are removed (avoids errors in raster math)
 biomassRemovedRaster <- raster(biomassRemovedFileName)
 biomassRaster <- raster(biomassFileName)
+
+# Calculate proportion of biomass removed and save to outputs
+biomassRemovedProportion <- biomassRemovedRaster/(biomassRaster + biomassRemovedRaster)
+biomassRemovedProportion <- writeRaster(biomassRemovedProportion, biomassRemovedProportionFilename, format="GTiff", overwrite=TRUE, NAflag = -9999)
 
 # Calculate binary maps of heavy and normal grazing based on proportion of NPP removed. Save to outputs
 propNppRemoved <- biomassRemovedRaster/spatialNPP
@@ -168,10 +173,6 @@ grazeNormal[propNppRemoved >= 0.25 & propNppRemoved < .75]<- 1
 grazeNormal[propNppRemoved < 0.25 | propNppRemoved >= .75]<- 0
 writeRaster(grazeHeavy, outputGrazeHeavyRaster, format="GTiff", overwrite=TRUE, NAflag = -9999)
 writeRaster(grazeNormal, outputGrazeNormRaster, format="GTiff", overwrite=TRUE, NAflag = -9999)
-
-# Calculate proportion of biomass removed and save to outputs
-biomassRemovedProportion <- biomassRemovedRaster/(biomassRaster + biomassRemovedRaster)
-biomassRemovedProportion <- writeRaster(biomassRemovedProportion, biomassRemovedProportionFilename, format="GTiff", overwrite=TRUE, NAflag = -9999)
 
 # Export results to SyncroSim --------------------------------------------------
 
@@ -210,11 +211,12 @@ biomassRemovedData <- data.frame(
 saveDatasheet(myScenario, biomassRemovedData, name = biomassRemovedSheetName, append=T)
 
 # Collect tabular data
+hectaresToAcres <- 2.47105
 outputTable <- data.frame(
   Iteration = iteration,
   Timestep = timestep,
   Name = c("Biomass", "Biomass Removed", "Bison Count"),
-  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T), numBison),
+  Value = c(mean(values(biomassRaster) / hectaresToAcres, na.rm = T), mean(values(biomassRemovedRaster) / hectaresToAcres, na.rm = T), numBison),
   stringsAsFactors = F)
 saveDatasheet(myScenario, outputTable, "corestime_ExternalProgramVariable", append = T)
 

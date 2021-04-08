@@ -148,7 +148,7 @@ biomassRemovedRaster <- raster(biomassRemoved) %>%
   mask(template.output)
 projection(biomassRemovedRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassRemovedFileName <- paste0(tempDir, "/biomassRemoved.tif")
-writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T, NAflag = -9999)
+biomassRemovedRaster <- writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T, NAflag = -9999)
 
 # Save map of biomass as a raster
 biomass <- NLGetPatches(c("pxcor","pycor","biomass"), nl.obj=nlInstance)
@@ -159,7 +159,8 @@ biomassRaster <- raster(biomass) %>%
   mask(template.output)
 projection(biomassRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassFileName <- paste0(tempDir, "/biomass.tif")
-writeRaster(biomassRaster, biomassFileName, overwrite=T, NAflag = -9999)
+values(biomassRaster)[values(biomassRaster) < 0] <- 0
+biomassRaster <- writeRaster(biomassRaster, biomassFileName, overwrite=T, NAflag = -9999)
 
 # Reload rasters so N/A values are removed (avoids errors in raster math)
 biomassRemovedRaster <- raster(biomassRemovedFileName)
@@ -217,11 +218,12 @@ biomassRemovedData <- data.frame(
 saveDatasheet(myScenario, biomassRemovedData, name = biomassRemovedSheetName, append=T)
 
 # Collect tabular data
+hectaresToAcres <- 2.47105
 outputTable <- data.frame(
   Iteration = iteration,
   Timestep = timestep,
   Name = c("Biomass", "Biomass Removed", "Bison Count"),
-  Value = c(sum(values(biomassRaster), na.rm = T), sum(values(biomassRemovedRaster), na.rm = T), numBison),
+  Value = c(mean(values(biomassRaster) / hectaresToAcres, na.rm = T), mean(values(biomassRemovedRaster) / hectaresToAcres, na.rm = T), numBison),
   stringsAsFactors = F)
 saveDatasheet(myScenario, outputTable, "corestime_ExternalProgramVariable", append = T)
 
