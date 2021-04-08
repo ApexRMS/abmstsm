@@ -151,6 +151,7 @@ biomassRemovedRaster <- raster(biomassRemoved) %>%
   mask(template.output)
 projection(biomassRemovedRaster) <- CRS("+proj=utm +zone=13 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs ")
 biomassRemovedFileName <- paste0(tempDir, "/biomassRemoved.tif")
+values(biomassRemovedRaster)[values(biomassRemovedRaster) < 0] <- 0
 biomassRemovedRaster <- writeRaster(biomassRemovedRaster, biomassRemovedFileName, overwrite=T, NAflag = -9999)
 
 # Save map of biomass as a raster
