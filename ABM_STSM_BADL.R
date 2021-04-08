@@ -59,12 +59,21 @@ outputGrazeNormRaster <- file.path(tempDir, str_c("ABM_grazenorm_output.it", ite
   
 # Get the number of bison to generate
 numBison <-datasheet(myScenario, "corestime_ExternalProgramVariable") %>%
-  filter(Name == "Bison Count") %>%
+  filter(Name == "Bison Count", Timestep == 0) %>%
   pull(Value) %>%
   `[`(1)
 
 if(is.na(numBison))
   stop("Can't find the variable numBison")
+
+# Get the thirst threshold
+thirstThreshold <-datasheet(myScenario, "corestime_ExternalProgramVariable") %>%
+  filter(Name == "Thirst Threshold", Timestep == 0) %>%
+  pull(Value) %>%
+  `[`(1)
+
+if(is.na(thirstThreshold))
+  stop("Can't find the variable thirstThreshold")
 
 # Set buffalo location file names for current and following run The current
 # location was produced in the previous run, except in the case of the first
@@ -110,6 +119,7 @@ nlogoScript <- readLines(file.path(template.models.folder, template.model.path),
   str_replace_all("_dataDir_", dataDir) %>%
   str_replace_all("_inputPath_", inputStateRaster) %>%
   str_replace_all("_numBison_", as.character(numBison)) %>%
+  str_replace_all("_thirstThreshold_", as.character(thirstThreshold / 10)) %>%
   str_replace_all("locations_in.txt", locationsFile) %>%
   str_replace_all("locationsNew.txt", locationsFileNext)
 writeLines(nlogoScript, absolute.model.path)
